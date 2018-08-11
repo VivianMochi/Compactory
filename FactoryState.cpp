@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellHeight(12), gridPosition(30, 30) {
+FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellHeight(12), gridPositionOnScreen(30, 30) {
 	
 }
 
@@ -18,12 +18,8 @@ FactoryState::~FactoryState() {
 
 void FactoryState::init() {
 	cells.resize(gridWidth * gridHeight, nullptr);
-	gridPosition.x = 240 / 2 - gridWidth * cellWidth / 2;
-	gridPosition.y = 135 / 2 - gridHeight * cellHeight / 2;
-
-	addCell(new Conveyor(this, right), sf::Vector2i(1, 0));
-	addCell(new Conveyor(this, down), sf::Vector2i(2, 0));
-	addCell(new Conveyor(this, down), sf::Vector2i(2, 1));
+	gridPositionOnScreen.x = 240 / 2 - gridWidth * cellWidth / 2;
+	gridPositionOnScreen.y = 135 / 2 - gridHeight * cellHeight / 2;
 }
 
 void FactoryState::gotEvent(sf::Event event) {
@@ -31,7 +27,14 @@ void FactoryState::gotEvent(sf::Event event) {
 }
 
 void FactoryState::update(sf::Time elapsed) {
-
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+		sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
+		addCell(new Conveyor(this, right), screenToGridPosition(mousePosition));
+	}
+	else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+		sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
+		deleteCell(screenToGridPosition(mousePosition));
+	}
 }
 
 void FactoryState::render(sf::RenderWindow &window) {
@@ -50,17 +53,17 @@ void FactoryState::render(sf::RenderWindow &window) {
 	}
 }
 
-void FactoryState::addCell(Cell *cell, sf::Vector2i position) {
+void FactoryState::addCell(Cell * cell, int x, int y) {
 	// Place cell into cells vector, deleting any existing cell
-	if (position.x >= 0 && position.x < gridWidth && position.y >= 0 && position.y < gridHeight) {
-		int cellIndex = position.y * gridWidth + position.x;
+	if (validGridPosition(x, y)) {
+		int cellIndex = y * gridWidth + x;
 		if (cells[cellIndex]) {
 			delete cells[cellIndex];
 		}
 		cells[cellIndex] = cell;
 
 		// Do other setup
-		cell->setGridPosition(position);
+		cell->setGridPosition(x, y);
 	}
 	else {
 		// Cell was placed outside grid, delete it
@@ -68,8 +71,26 @@ void FactoryState::addCell(Cell *cell, sf::Vector2i position) {
 	}
 }
 
+void FactoryState::addCell(Cell *cell, sf::Vector2i gridPosition) {
+	addCell(cell, gridPosition.x, gridPosition.y);
+}
+
+void FactoryState::deleteCell(int x, int y) {
+	if (validGridPosition(x, y)) {
+		int cellIndex = y * gridWidth + x;
+		if (cells[cellIndex]) {
+			delete cells[cellIndex];
+			cells[cellIndex] = nullptr;
+		}
+	}
+}
+
+void FactoryState::deleteCell(sf::Vector2i gridPosition) {
+	deleteCell(gridPosition.x, gridPosition.y);
+}
+
 sf::Vector2f FactoryState::gridToScreenPosition(int x, int y) {
-	return gridPosition + sf::Vector2f(x * cellWidth, y * cellHeight);
+	return gridPositionOnScreen + sf::Vector2f(x * cellWidth, y * cellHeight);
 }
 
 sf::Vector2f FactoryState::gridToScreenPosition(sf::Vector2i gridPosition) {
@@ -77,9 +98,26 @@ sf::Vector2f FactoryState::gridToScreenPosition(sf::Vector2i gridPosition) {
 }
 
 sf::Vector2i FactoryState::screenToGridPosition(int x, int y) {
-	return sf::Vector2i();
+	sf::Vector2i gridPosition;
+	gridPosition.x = x - gridPositionOnScreen.x;
+	if (gridPosition.x > 0) {
+		gridPosition.x /= cellWidth;
+	}
+	gridPosition.y = y - gridPositionOnScreen.y;
+	if (gridPosition.y > 0) {
+		gridPosition.y /= cellHeight;
+	}
+	return gridPosition;
 }
 
 sf::Vector2i FactoryState::screenToGridPosition(sf::Vector2f screenPosition) {
-	return sf::Vector2i();
+	return screenToGridPosition(screenPosition.x, screenPosition.y);
+}
+
+bool FactoryState::validGridPosition(int x, int y) {
+	return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
+}
+
+bool FactoryState::validGridPosition(sf::Vector2i gridPosition) {
+	return validGridPosition(gridPosition.x, gridPosition.y);
 }

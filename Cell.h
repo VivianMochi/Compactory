@@ -15,6 +15,7 @@ public:
 	virtual void update(sf::Time elapsed);
 
 	virtual void setGridPosition(sf::Vector2i gridPosition);
+	void setGridPosition(int x, int y);
 
 protected:
 	FactoryState *factory;

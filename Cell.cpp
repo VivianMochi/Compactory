@@ -22,3 +22,6 @@ void Cell::setGridPosition(sf::Vector2i gridPosition) {
 	this->gridPosition = gridPosition;
 }
 
+void Cell::setGridPosition(int x, int y) {
+	setGridPosition(sf::Vector2i(x, y));
+}
