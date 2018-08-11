@@ -1,13 +1,14 @@
 #include "Game.h"
 
 #include "State.h"
+#include "FactoryState.h"
 #include <iostream>
 #include <algorithm>
 
 Game::Game() {
 	// Create game window
-	//window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "GAMENAME", sf::Style::Fullscreen);
-	window = new sf::RenderWindow(sf::VideoMode(960, 540), "GAMENAME");
+	//window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Compactory", sf::Style::Fullscreen);
+	window = new sf::RenderWindow(sf::VideoMode(960, 540), "Compactory");
 	window->setFramerateLimit(60);
 	fullscreen = false;
 	scale = std::min(window->getSize().x / 240, window->getSize().y / 135);
@@ -15,7 +16,7 @@ Game::Game() {
 	// Initialize game-wide variables
 
 	// Initial state
-	//changeState(new MenuState());
+	changeState(new FactoryState());
 
 	// Start the clock
 	sf::Clock clock;
@@ -48,13 +49,13 @@ Game::Game() {
 				if (event.key.code == sf::Keyboard::F11) {
 					if (fullscreen) {
 						delete window;
-						window = new sf::RenderWindow(sf::VideoMode(960, 540), "Crescendo");
+						window = new sf::RenderWindow(sf::VideoMode(960, 540), "Compactory");
 						window->setFramerateLimit(60);
 						fullscreen = false;
 					}
 					else {
 						delete window;
-						window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Crescendo", sf::Style::Fullscreen);
+						window = new sf::RenderWindow(sf::VideoMode(1920, 1080), "Compactory", sf::Style::Fullscreen);
 						window->setFramerateLimit(60);
 						fullscreen = true;
 					}
@@ -76,7 +77,7 @@ Game::Game() {
 			state->update(elapsed);
 
 		// Render
-		window->clear();
+		window->clear(sf::Color(220, 220, 220));
 		if (state) {
 			state->render(*window);
 		}
