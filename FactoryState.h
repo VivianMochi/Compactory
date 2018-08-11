@@ -14,7 +14,15 @@ public:
 	virtual void update(sf::Time elapsed) override;
 	virtual void render(sf::RenderWindow & window) override;
 
+	void addCell(Cell *cell, sf::Vector2i position);
+
+	sf::Vector2f gridToScreenPosition(int x, int y);
+	sf::Vector2f gridToScreenPosition(sf::Vector2i gridPosition);
+	sf::Vector2i screenToGridPosition(int x, int y);
+	sf::Vector2i screenToGridPosition(sf::Vector2f screenPosition);
+
 private:
+
 	int gridWidth;
 	int gridHeight;
 	int cellWidth;

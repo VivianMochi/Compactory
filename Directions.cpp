@@ -8,7 +8,7 @@ Directions::~Directions() {
 
 }
 
-bool Directions::isEnabled(int directions) {
+bool Directions::isEnabled(int directions) const {
 	return (directions & enabled) == directions;
 }
 
