@@ -19,8 +19,9 @@ public:
 	virtual bool giveTick();
 	virtual void update(sf::Time elapsed);
 
-	virtual void setGridPosition(sf::Vector2i gridPosition);
+	void setGridPosition(sf::Vector2i gridPosition);
 	void setGridPosition(int x, int y);
+	virtual void updateGraphics();
 
 	bool canReceiveFrom(int directions) const;
 
@@ -34,10 +35,11 @@ protected:
 	sf::Vector2i gridPosition;
 	bool dying = false;
 
+public:
 	Directions takeFrom;
 	Directions canReceive;
 	Directions giveTo;
-public:
+
 	Box *box = nullptr;
 	Box *nextBox = nullptr;
 };

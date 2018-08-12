@@ -8,7 +8,7 @@ public:
 	~Conveyor();
 
 	// Inherited via Cell
-	virtual void setGridPosition(sf::Vector2i gridPosition) override;
+	virtual void updateGraphics() override;
 
 private:
 	// Inherited via Cell

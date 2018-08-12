@@ -24,7 +24,7 @@ public:
 	bool isEnabled(int directions) const;
 	void enable(int directions);
 	void disable(int directions);
-	std::vector<Direction> listEnabled();
+	std::vector<Direction> listEnabled() const;
 
 private:
 	int enabled;

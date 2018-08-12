@@ -16,7 +16,6 @@ void ExitPoint::update(sf::Time elapsed) {
 
 }
 
-void ExitPoint::setGridPosition(sf::Vector2i gridPosition) {
-	Cell::setGridPosition(gridPosition);
+void ExitPoint::updateGraphics() {
 	//sprite.setPosition(factory->gridToScreenPosition(gridPosition));
 }

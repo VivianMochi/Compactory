@@ -34,6 +34,8 @@ private:
 
 	bool validGridPosition(int x, int y);
 	bool validGridPosition(sf::Vector2i gridPosition);
+	
+	void updateSurroundingGraphics(int x, int y);
 
 	int gridWidth;
 	int gridHeight;

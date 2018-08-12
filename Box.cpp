@@ -12,7 +12,7 @@ Box::~Box() {
 }
 
 void Box::update(sf::Time elapsed) {
-	sprite.move((endPosition - sprite.getPosition()) * 12.f * elapsed.asSeconds());
+	sprite.move((endPosition - sprite.getPosition()) * 8.f * elapsed.asSeconds());
 }
 
 void Box::slideTo(sf::Vector2f position) {

@@ -16,7 +16,6 @@ void EntryPoint::update(sf::Time elapsed) {
 
 }
 
-void EntryPoint::setGridPosition(sf::Vector2i gridPosition) {
-	Cell::setGridPosition(gridPosition);
+void EntryPoint::updateGraphics() {
 	//sprite.setPosition(factory->gridToScreenPosition(gridPosition));
 }

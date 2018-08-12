@@ -58,10 +58,15 @@ void Cell::update(sf::Time elapsed) {
 
 void Cell::setGridPosition(sf::Vector2i gridPosition) {
 	this->gridPosition = gridPosition;
+	updateGraphics();
 }
 
 void Cell::setGridPosition(int x, int y) {
 	setGridPosition(sf::Vector2i(x, y));
+}
+
+void Cell::updateGraphics() {
+
 }
 
 bool Cell::canReceiveFrom(int directions) const {

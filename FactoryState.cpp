@@ -40,7 +40,7 @@ void FactoryState::update(sf::Time elapsed) {
 		tickCounter = tickPeriod;
 		preTickDone = false;
 	}
-	else if (!preTickDone && tickCounter < tickPeriod / 2) {
+	else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
 		preTick();
 		preTickDone = true;
 	}
@@ -54,6 +54,7 @@ void FactoryState::update(sf::Time elapsed) {
 				removed++;
 				delete cells[i];
 				cells[i] = nullptr;
+				updateSurroundingGraphics(i % gridWidth, i / gridWidth);
 			}
 		}
 	}
@@ -95,7 +96,7 @@ void FactoryState::render(sf::RenderWindow &window) {
 	}
 }
 
-void FactoryState::addCell(Cell * cell, int x, int y) {
+void FactoryState::addCell(Cell *cell, int x, int y) {
 	// Place cell into cells vector
 	if (validGridPosition(x, y)) {
 		int cellIndex = y * gridWidth + x;
@@ -103,6 +104,7 @@ void FactoryState::addCell(Cell * cell, int x, int y) {
 			cells[cellIndex] = cell;
 			goodCells.push_back(cell);
 			cell->setGridPosition(x, y);
+			updateSurroundingGraphics(x, y);
 		}
 		else {
 			// Cell was placed on another cell, delete it
@@ -216,4 +218,23 @@ bool FactoryState::validGridPosition(int x, int y) {
 
 bool FactoryState::validGridPosition(sf::Vector2i gridPosition) {
 	return validGridPosition(gridPosition.x, gridPosition.y);
+}
+
+void FactoryState::updateSurroundingGraphics(int x, int y) {
+	Cell *cellUp = getCellAtGridPosition(x, y - 1);
+	Cell *cellRight = getCellAtGridPosition(x + 1, y);
+	Cell *cellDown = getCellAtGridPosition(x, y + 1);
+	Cell *cellLeft = getCellAtGridPosition(x - 1, y);
+	if (cellUp) {
+		cellUp->updateGraphics();
+	}
+	if (cellRight) {
+		cellRight->updateGraphics();
+	}
+	if (cellDown) {
+		cellDown->updateGraphics();
+	}
+	if (cellLeft) {
+		cellLeft->updateGraphics();
+	}
 }

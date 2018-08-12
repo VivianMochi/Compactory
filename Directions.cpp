@@ -78,7 +78,7 @@ void Directions::disable(int directions) {
 	enabled = enabled & !directions;
 }
 
-std::vector<Direction> Directions::listEnabled() {
+std::vector<Direction> Directions::listEnabled() const {
 	std::vector<Direction> list;
 	if (isEnabled(up)) {
 		list.push_back(up);
