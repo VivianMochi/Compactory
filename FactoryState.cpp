@@ -69,13 +69,19 @@ void FactoryState::init() {
 void FactoryState::gotEvent(sf::Event event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Space) {
-			paused = !paused;
-			if (paused) {
-				pauseText.setText("Game is paused - Space to unpause");
+			if (gameOver) {
+				if (tickCounter <= 0) {
+					game->changeState(new FactoryState());
+				}
 			}
-			else
-			{
-				pauseText.setText("Press space to pause");
+			else {
+				paused = !paused;
+				if (paused) {
+					pauseText.setText("Game is paused - Space to unpause");
+				}
+				else {
+					pauseText.setText("Press space to pause");
+				}
 			}
 		}
 		else if (event.key.code == sf::Keyboard::Q) {
@@ -97,86 +103,91 @@ void FactoryState::gotEvent(sf::Event event) {
 }
 
 void FactoryState::update(sf::Time elapsed) {
-	if (!paused) {
+	if (gameOver) {
 		tickCounter -= elapsed.asSeconds();
-		if (tickCounter <= 0) {
-			tick();
-			tickCounter = tickPeriod;
-			preTickDone = false;
-
-			difficultyCountdown--;
-			if (difficultyCountdown <= 0) {
-				difficultyTick();
-				difficultyCountdown = 5 + difficulty * 5;
-			}
-		}
-		else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
-			preTick();
-			preTickDone = true;
-		}
-
-		int removed = 0;
-		for (int i = 0; i < cells.size(); i++) {
-			if (cells[i]) {
-				cells[i]->update(elapsed);
-				if (cells[i]->shouldDie()) {
-					std::remove(goodCells.begin(), goodCells.end(), cells[i]);
-					removed++;
-					delete cells[i];
-					cells[i] = nullptr;
-					updateSurroundingGraphics(i % gridWidth, i / gridWidth);
-				}
-			}
-		}
-		if (removed) {
-			goodCells.resize(goodCells.size() - removed);
-		}
-
-		for (Cell *cell : borderCells) {
-			cell->update(elapsed);
-		}
 	}
 	else {
-		// While paused, trying to delete cells is ok
-		int removed = 0;
-		for (int i = 0; i < cells.size(); i++) {
-			if (cells[i]) {
-				if (cells[i]->shouldDie()) {
-					std::remove(goodCells.begin(), goodCells.end(), cells[i]);
-					removed++;
-					delete cells[i];
-					cells[i] = nullptr;
-					updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+		if (!paused) {
+			tickCounter -= elapsed.asSeconds();
+			if (tickCounter <= 0) {
+				tick();
+				tickCounter = tickPeriod;
+				preTickDone = false;
+
+				difficultyCountdown--;
+				if (difficultyCountdown <= 0) {
+					difficultyTick();
+					difficultyCountdown = 5 + difficulty * 5;
+				}
+			}
+			else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
+				preTick();
+				preTickDone = true;
+			}
+
+			int removed = 0;
+			for (int i = 0; i < cells.size(); i++) {
+				if (cells[i]) {
+					cells[i]->update(elapsed);
+					if (cells[i]->shouldDie()) {
+						std::remove(goodCells.begin(), goodCells.end(), cells[i]);
+						removed++;
+						delete cells[i];
+						cells[i] = nullptr;
+						updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+					}
+				}
+			}
+			if (removed) {
+				goodCells.resize(goodCells.size() - removed);
+			}
+
+			for (Cell *cell : borderCells) {
+				cell->update(elapsed);
+			}
+		}
+		else {
+			// While paused, trying to delete cells is ok
+			int removed = 0;
+			for (int i = 0; i < cells.size(); i++) {
+				if (cells[i]) {
+					if (cells[i]->shouldDie()) {
+						std::remove(goodCells.begin(), goodCells.end(), cells[i]);
+						removed++;
+						delete cells[i];
+						cells[i] = nullptr;
+						updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+					}
+				}
+			}
+			if (removed) {
+				goodCells.resize(goodCells.size() - removed);
+			}
+		}
+
+		sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			if (selection == conveyor) {
+				if (lastSelectedCell != selectedCell) {
+					addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+				}
+			}
+			else if (selection == splitter) {
+				if (lastSelectedCell != selectedCell) {
+					addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+				}
+			}
+			else if (selection == bouncer) {
+				if (lastSelectedCell != selectedCell) {
+					addCell(new Bouncer(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
 				}
 			}
 		}
-		if (removed) {
-			goodCells.resize(goodCells.size() - removed);
+		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+			deleteCell(selectedCell);
 		}
+		lastSelectedCell = selectedCell;
 	}
-
-	sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-		if (selection == conveyor) {
-			if (lastSelectedCell != selectedCell) {
-				addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
-			}
-		}
-		else if (selection == splitter) {
-			if (lastSelectedCell != selectedCell) {
-				addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
-			}
-		}
-		else if (selection == bouncer) {
-			if (lastSelectedCell != selectedCell) {
-				addCell(new Bouncer(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
-			}
-		}
-	}
-	else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-		deleteCell(selectedCell);
-	}
-	lastSelectedCell = selectedCell;
 }
 
 void FactoryState::render(sf::RenderWindow &window) {
@@ -312,13 +323,15 @@ void FactoryState::score() {
 }
 
 void FactoryState::lose() {
-	// Todo: make actual game over screen
-	game->changeState(new FactoryState());
+	gameOver = true;
+	tickCounter = 1;
+	pauseText.setText("Game Over! Entry point backed up!");
 }
 
 void FactoryState::win() {
-	// Todo: make actual win screen
-	game->changeState(new FactoryState());
+	gameOver = true;
+	tickCounter = 1;
+	pauseText.setText("Complete! Factory is functional!");
 }
 
 void FactoryState::preTick() {

@@ -76,6 +76,7 @@ private:
 	bool preTickDone = false;
 
 	bool paused = false;
+	bool gameOver = false;
 	BitmapText pauseText;
 
 	std::vector<sf::Color> availableColors;
