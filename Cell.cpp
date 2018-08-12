@@ -33,9 +33,8 @@ bool Cell::takeTick() {
 }
 
 bool Cell::giveTick() {
-	if (box) {
+	if (box && nextBox == box) {
 		for (Direction direction : giveTo.listEnabled()) {
-			// Todo: randomly organize directions every time to balance load
 			Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction));
 			if (otherCell && otherCell->canReceiveFrom(flipDirection(direction))) {
 				otherCell->nextBox = box;

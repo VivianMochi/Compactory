@@ -1,6 +1,7 @@
 #include "FactoryState.h"
 
 #include "Conveyor.h"
+#include "Splitter.h"
 #include "Directions.h"
 #include "Box.h"
 
@@ -72,7 +73,11 @@ void FactoryState::update(sf::Time elapsed) {
 				addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
 			}
 		}
-		
+		else if (selection == splitter) {
+			if (lastSelectedCell != selectedCell) {
+				addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+			}
+		}
 	}
 	else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
 		deleteCell(selectedCell);

@@ -92,5 +92,6 @@ std::vector<Direction> Directions::listEnabled() const {
 	if (isEnabled(left)) {
 		list.push_back(left);
 	}
+	std::random_shuffle(list.begin(), list.end());
 	return list;
 }

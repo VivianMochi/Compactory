@@ -7,13 +7,13 @@ Conveyor::Conveyor(FactoryState *state, int direction) : Cell(state) {
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Conveyor.png"));
 	int spriteOffset = 0;
-	if (giveTo.isEnabled(right)) {
+	if (direction == right) {
 		spriteOffset = 12;
 	}
-	else if (giveTo.isEnabled(down)) {
+	else if (direction == down) {
 		spriteOffset = 24;
 	}
-	else if (giveTo.isEnabled(left)) {
+	else if (direction == left) {
 		spriteOffset = 36;
 	}
 	sprite.setTextureRect(sf::IntRect(0, spriteOffset, 16, 12));
