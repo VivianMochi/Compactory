@@ -19,5 +19,7 @@ void Conveyor::setGridPosition(sf::Vector2i gridPosition) {
 }
 
 void Conveyor::draw(sf::RenderTarget &target, sf::RenderStates states) const {
-	target.draw(sprite);
+	target.draw(sprite, states);
+	// Todo: make boxes render in a different function that is called after all cells
+	Cell::draw(target, states);
 }

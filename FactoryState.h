@@ -25,6 +25,9 @@ public:
 	sf::Vector2i screenToGridPosition(int x, int y);
 	sf::Vector2i screenToGridPosition(sf::Vector2f screenPosition);
 
+	Cell *getCellAtGridPosition(int x, int y);
+	Cell *getCellAtGridPosition(sf::Vector2i gridPosition);
+
 private:
 	bool validGridPosition(int x, int y);
 	bool validGridPosition(sf::Vector2i gridPosition);
@@ -36,5 +39,8 @@ private:
 
 	sf::Vector2f gridPositionOnScreen;
 	std::vector<Cell*> cells;
+
+	float tickCounter = 0;
+	float tickPeriod;
 };
 

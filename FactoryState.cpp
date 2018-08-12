@@ -1,10 +1,12 @@
 #include "FactoryState.h"
 
 #include "Conveyor.h"
+#include "Directions.h"
+#include "Box.h"
 
 #include <iostream>
 
-FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellHeight(12), gridPositionOnScreen(30, 30) {
+FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellHeight(12), tickPeriod(.5) {
 	
 }
 
@@ -23,10 +25,53 @@ void FactoryState::init() {
 }
 
 void FactoryState::gotEvent(sf::Event event) {
-
+	if (event.type == sf::Event::MouseButtonPressed) {
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+				/*sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
+				Cell *cell = getCellAtGridPosition(screenToGridPosition(mousePosition));
+				if (cell && cell->canReceiveFrom(left)) {
+					std::cout << "Placing box\n";
+					cell->setBox(new Box(this));
+				}*/
+			}
+		}
+	}
 }
 
 void FactoryState::update(sf::Time elapsed) {
+	tickCounter -= elapsed.asSeconds();
+	if (tickCounter <= 0) {
+		tickCounter = tickPeriod;
+		
+		if (cells[0] && cells[0]->canReceiveFrom(left)) {
+			cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
+		}
+
+		// Todo: place "good" cells into their own vector. randomize order of vector to balance priority of give / take operations
+		for (Cell *cell : cells) {
+			if (cell) {
+				cell->processTick();
+			}
+		}
+		for (Cell *cell : cells) {
+			if (cell) {
+				cell->takeTick();
+			}
+		}
+		for (Cell *cell : cells) {
+			if (cell) {
+				cell->giveTick();
+			}
+		}
+	}
+
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->update(elapsed);
+		}
+	}
+
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
 		addCell(new Conveyor(this, right), screenToGridPosition(mousePosition));
@@ -112,6 +157,19 @@ sf::Vector2i FactoryState::screenToGridPosition(int x, int y) {
 
 sf::Vector2i FactoryState::screenToGridPosition(sf::Vector2f screenPosition) {
 	return screenToGridPosition(screenPosition.x, screenPosition.y);
+}
+
+Cell *FactoryState::getCellAtGridPosition(int x, int y) {
+	if (validGridPosition(x, y)) {
+		return cells[y * gridWidth + x];
+	}
+	else {
+		return nullptr;
+	}
+}
+
+Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
+	return getCellAtGridPosition(gridPosition.x, gridPosition.y);
 }
 
 bool FactoryState::validGridPosition(int x, int y) {
