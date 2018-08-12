@@ -158,9 +158,19 @@ void FactoryState::addCell(Cell *cell, int x, int y) {
 			updateSurroundingGraphics(x, y);
 		}
 		else {
-			// Cell was placed on another cell, delete it
-			// Todo: make this place the new cell into a queue, and mark the overlapping cell for destruction
-			delete cell;
+			// Cell was placed on another cell, delete the old cell preserving its box
+			cell->box = cells[cellIndex]->box;
+			cell->nextBox = cells[cellIndex]->nextBox;
+
+			cells[cellIndex]->box = nullptr;
+			cells[cellIndex]->nextBox = nullptr;
+			goodCells.erase(std::find(goodCells.begin(), goodCells.end(), cells[cellIndex]));
+			delete cells[cellIndex];
+
+			cells[cellIndex] = cell;
+			goodCells.push_back(cell);
+			cell->setGridPosition(x, y);
+			updateSurroundingGraphics(x, y);
 		}
 	}
 	else {
