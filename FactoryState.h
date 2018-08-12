@@ -29,6 +29,9 @@ public:
 	Cell *getCellAtGridPosition(sf::Vector2i gridPosition);
 
 private:
+	void preTick();
+	void tick();
+
 	bool validGridPosition(int x, int y);
 	bool validGridPosition(sf::Vector2i gridPosition);
 
@@ -42,5 +45,6 @@ private:
 
 	float tickCounter = 0;
 	float tickPeriod;
+	bool preTickDone = false;
 };
 

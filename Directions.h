@@ -19,7 +19,7 @@ public:
 	Directions(int enabled = 0);
 	~Directions();
 
-	int getEnabled();
+	int getEnabled() const;
 	bool isEnabled(int directions) const;
 	void enable(int directions);
 	void disable(int directions);

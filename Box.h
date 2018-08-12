@@ -9,7 +9,10 @@ public:
 	Box(FactoryState *state = nullptr, sf::Color color = sf::Color());
 	~Box();
 
-	void setPosition(sf::Vector2f screenPosition);
+	void update(sf::Time elapsed);
+
+	void slideTo(sf::Vector2f position);
+	void setPosition(sf::Vector2f position);
 
 	// Inherited via Drawable
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
@@ -19,5 +22,6 @@ private:
 	sf::Color color;
 
 	sf::Sprite sprite;
+	sf::Vector2f endPosition;
 };
 

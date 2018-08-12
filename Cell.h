@@ -11,6 +11,7 @@ public:
 	Cell(FactoryState *state = nullptr);
 	virtual ~Cell();
 
+	virtual void preTick();
 	virtual void processTick();
 	virtual void takeTick();
 	virtual void giveTick();
@@ -21,18 +22,21 @@ public:
 
 	bool canReceiveFrom(int directions) const;
 
-protected:
-	// Inherited via Drawable
-	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+	virtual void drawBox(sf::RenderTarget &target) const;
 
+	void destroy();
+	bool shouldDie() const;
+
+protected:
 	FactoryState *factory;
 	sf::Vector2i gridPosition;
+	bool dying = false;
 
 	Directions takeFrom;
 	Directions canReceive;
 	Directions giveTo;
 public:
-	Box *box;
-	Box *nextBox;
+	Box *box = nullptr;
+	Box *nextBox = nullptr;
 };
 

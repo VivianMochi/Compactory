@@ -27,13 +27,8 @@ void FactoryState::init() {
 void FactoryState::gotEvent(sf::Event event) {
 	if (event.type == sf::Event::MouseButtonPressed) {
 		if (event.mouseButton.button == sf::Mouse::Left) {
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
-				/*sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
-				Cell *cell = getCellAtGridPosition(screenToGridPosition(mousePosition));
-				if (cell && cell->canReceiveFrom(left)) {
-					std::cout << "Placing box\n";
-					cell->setBox(new Box(this));
-				}*/
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+				// Place cell
 			}
 		}
 	}
@@ -42,33 +37,22 @@ void FactoryState::gotEvent(sf::Event event) {
 void FactoryState::update(sf::Time elapsed) {
 	tickCounter -= elapsed.asSeconds();
 	if (tickCounter <= 0) {
+		tick();
 		tickCounter = tickPeriod;
-		
-		if (cells[0] && cells[0]->canReceiveFrom(left)) {
-			cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
-		}
-
-		// Todo: place "good" cells into their own vector. randomize order of vector to balance priority of give / take operations
-		for (Cell *cell : cells) {
-			if (cell) {
-				cell->processTick();
-			}
-		}
-		for (Cell *cell : cells) {
-			if (cell) {
-				cell->takeTick();
-			}
-		}
-		for (Cell *cell : cells) {
-			if (cell) {
-				cell->giveTick();
-			}
-		}
+		preTickDone = false;
+	}
+	else if (!preTickDone && tickCounter < tickPeriod / 2) {
+		preTick();
+		preTickDone = true;
 	}
 
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->update(elapsed);
+	for (int i = 0; i < cells.size(); i++) {
+		if (cells[i]) {
+			cells[i]->update(elapsed);
+			if (cells[i]->shouldDie()) {
+				delete cells[i];
+				cells[i] = nullptr;
+			}
 		}
 	}
 
@@ -85,9 +69,9 @@ void FactoryState::update(sf::Time elapsed) {
 void FactoryState::render(sf::RenderWindow &window) {
 	sf::RectangleShape cellBG;
 	cellBG.setSize(sf::Vector2f(cellWidth - 2, cellHeight - 2));
-	size_t cellIndex = 0;
-	for (size_t y = 0; y < gridHeight; y++) {
-		for (size_t x = 0; x < gridWidth; x++) {
+	int cellIndex = 0;
+	for (int y = 0; y < gridHeight; y++) {
+		for (int x = 0; x < gridWidth; x++) {
 			cellBG.setPosition(gridToScreenPosition(x, y) + sf::Vector2f(1, 1));
 			window.draw(cellBG);
 			if (cells[cellIndex]) {
@@ -96,19 +80,26 @@ void FactoryState::render(sf::RenderWindow &window) {
 			cellIndex++;
 		}
 	}
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->drawBox(window);
+		}
+	}
 }
 
 void FactoryState::addCell(Cell * cell, int x, int y) {
-	// Place cell into cells vector, deleting any existing cell
+	// Place cell into cells vector
 	if (validGridPosition(x, y)) {
 		int cellIndex = y * gridWidth + x;
-		if (cells[cellIndex]) {
-			delete cells[cellIndex];
+		if (!cells[cellIndex]) {
+			cells[cellIndex] = cell;
+			cell->setGridPosition(x, y);
 		}
-		cells[cellIndex] = cell;
-
-		// Do other setup
-		cell->setGridPosition(x, y);
+		else {
+			// Cell was placed on another cell, delete it
+			// Todo: make this place the new cell into a queue, and mark the overlapping cell for destruction
+			delete cell;
+		}
 	}
 	else {
 		// Cell was placed outside grid, delete it
@@ -124,8 +115,7 @@ void FactoryState::deleteCell(int x, int y) {
 	if (validGridPosition(x, y)) {
 		int cellIndex = y * gridWidth + x;
 		if (cells[cellIndex]) {
-			delete cells[cellIndex];
-			cells[cellIndex] = nullptr;
+			cells[cellIndex]->destroy();
 		}
 	}
 }
@@ -170,6 +160,37 @@ Cell *FactoryState::getCellAtGridPosition(int x, int y) {
 
 Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
 	return getCellAtGridPosition(gridPosition.x, gridPosition.y);
+}
+
+void FactoryState::preTick() {
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->preTick();
+		}
+	}
+}
+
+void FactoryState::tick() {
+	if (cells[0] && cells[0]->canReceiveFrom(left)) {
+		cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
+	}
+
+	// Todo: place "good" cells into their own vector. randomize order of vector to balance priority of give / take operations
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->processTick();
+		}
+	}
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->takeTick();
+		}
+	}
+	for (Cell *cell : cells) {
+		if (cell) {
+			cell->giveTick();
+		}
+	}
 }
 
 bool FactoryState::validGridPosition(int x, int y) {

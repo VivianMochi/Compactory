@@ -12,6 +12,12 @@ Cell::~Cell() {
 	}
 }
 
+void Cell::preTick() {
+	if (nextBox) {
+		nextBox->slideTo(factory->gridToScreenPosition(gridPosition));
+	}
+}
+
 void Cell::processTick() {
 	box = nextBox;
 	if (box) {
@@ -40,7 +46,9 @@ void Cell::giveTick() {
 }
 
 void Cell::update(sf::Time elapsed) {
-
+	if (box) {
+		box->update(elapsed);
+	}
 }
 
 void Cell::setGridPosition(sf::Vector2i gridPosition) {
@@ -52,11 +60,19 @@ void Cell::setGridPosition(int x, int y) {
 }
 
 bool Cell::canReceiveFrom(int directions) const {
-	return !nextBox && canReceive.isEnabled(directions);
+	return !dying && !nextBox && canReceive.isEnabled(directions);
 }
 
-void Cell::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+void Cell::drawBox(sf::RenderTarget &target) const {
 	if (box) {
-		target.draw(*box, states);
+		target.draw(*box);
 	}
+}
+
+void Cell::destroy() {
+	dying = true;
+}
+
+bool Cell::shouldDie() const {
+	return dying && !box && !nextBox;
 }

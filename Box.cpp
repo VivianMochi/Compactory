@@ -13,8 +13,17 @@ Box::~Box() {
 
 }
 
-void Box::setPosition(sf::Vector2f screenPosition) {
-	sprite.setPosition(screenPosition);
+void Box::update(sf::Time elapsed) {
+	sprite.move((endPosition - sprite.getPosition()) * 10.f * elapsed.asSeconds());
+}
+
+void Box::slideTo(sf::Vector2f position) {
+	endPosition = position;
+}
+
+void Box::setPosition(sf::Vector2f position) {
+	sprite.setPosition(position);
+	endPosition = position;
 }
 
 void Box::draw(sf::RenderTarget &target, sf::RenderStates states) const {

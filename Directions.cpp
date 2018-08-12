@@ -44,7 +44,7 @@ Directions::~Directions() {
 
 }
 
-int Directions::getEnabled() {
+int Directions::getEnabled() const {
 	return enabled;
 }
 
