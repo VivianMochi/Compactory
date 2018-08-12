@@ -4,20 +4,21 @@
 
 EntryPoint::EntryPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false), period(4), countdown(period) {
 	giveTo.enable(direction);
+	canReceive.disable(all);
 	filter = color;
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Arrows.png"));
-	int spriteOffset = 0;
+	spritesheetPosition = 0;
 	if (direction == right) {
-		spriteOffset = 20;
+		spritesheetPosition = 20;
 	}
 	else if (direction == down) {
-		spriteOffset = 40;
+		spritesheetPosition = 40;
 	}
 	else if (direction == left) {
-		spriteOffset = 60;
+		spritesheetPosition = 60;
 	}
-	sprite.setTextureRect(sf::IntRect(0, spriteOffset, 20, 20));
+	sprite.setTextureRect(sf::IntRect(0, spritesheetPosition, 20, 20));
 	sprite.setOrigin(sf::Vector2f(2, 4));
 	sprite.setColor(color);
 
@@ -37,16 +38,32 @@ void EntryPoint::processTick() {
 	countdown--;
 	if (countdown <= 0) {
 		countdown = period;
-		if (!box && !nextBox) {
-			box = new Box(factory, filter);
-			nextBox = box;
-			box->setPosition(factory->gridToScreenPosition(gridPosition));
-		}
+		stored++;
+		sprite.setTextureRect(sf::IntRect(stored * 20, spritesheetPosition, 20, 20));
+	}
+	if (stored > 0 && !box && !nextBox) {
+		box = new Box(factory, filter);
+		nextBox = box;
+		box->setPosition(factory->gridToScreenPosition(gridPosition));
+	}
+	else if (stored > 3) {
+		factory->lose();
+	}
+}
+
+bool EntryPoint::giveTick() {
+	if (Cell::giveTick()) {
+		stored--;
+		sprite.setTextureRect(sf::IntRect(stored * 20, spritesheetPosition, 20, 20));
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 
 void EntryPoint::update(sf::Time elapsed) {
-
+	
 }
 
 void EntryPoint::updateGraphics() {

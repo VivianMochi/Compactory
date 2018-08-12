@@ -28,6 +28,8 @@ public:
 	Cell *getCellAtGridPosition(int x, int y);
 	Cell *getCellAtGridPosition(sf::Vector2i gridPosition);
 
+	void lose();
+
 private:
 	void preTick();
 	void tick();
@@ -52,6 +54,7 @@ private:
 	std::vector<Cell*> goodCells;
 	std::vector<Cell*> borderCells;
 	std::vector<std::pair<sf::Vector2i, Direction>> emptyBorderPositions;
+	sf::Sprite frame;
 
 	enum cellType {
 		conveyor,

@@ -9,17 +9,17 @@ Conveyor::Conveyor(FactoryState *state, Direction direction) : Cell(state) {
 	giveTo.enable(direction);
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Conveyor.png"));
-	int spriteOffset = 0;
+	int spritesheetPosition = 0;
 	if (direction == right) {
-		spriteOffset = 12;
+		spritesheetPosition = 12;
 	}
 	else if (direction == down) {
-		spriteOffset = 24;
+		spritesheetPosition = 24;
 	}
 	else if (direction == left) {
-		spriteOffset = 36;
+		spritesheetPosition = 36;
 	}
-	sprite.setTextureRect(sf::IntRect(0, spriteOffset, 16, 12));
+	sprite.setTextureRect(sf::IntRect(0, spritesheetPosition, 16, 12));
 }
 
 Conveyor::~Conveyor() {

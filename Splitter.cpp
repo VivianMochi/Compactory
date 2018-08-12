@@ -9,11 +9,11 @@ Splitter::Splitter(FactoryState *state, Direction direction) : Cell(state) {
 	giveTo.enable(direction | flipDirection(direction));
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Splitter.png"));
-	int spriteOffset = 0;
+	int spritesheetPosition = 0;
 	if (direction == right || direction == left) {
-		spriteOffset = 12;
+		spritesheetPosition = 12;
 	}
-	sprite.setTextureRect(sf::IntRect(0, spriteOffset, 16, 12));
+	sprite.setTextureRect(sf::IntRect(0, spritesheetPosition, 16, 12));
 }
 
 Splitter::~Splitter() {

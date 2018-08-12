@@ -11,17 +11,17 @@ ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf:
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Arrows.png"));
 	Direction renderDirection = flipDirection(direction);
-	int spriteOffset = 0;
+	spritesheetPosition = 0;
 	if (renderDirection == right) {
-		spriteOffset = 20;
+		spritesheetPosition = 20;
 	}
 	else if (renderDirection == down) {
-		spriteOffset = 40;
+		spritesheetPosition = 40;
 	}
 	else if (renderDirection == left) {
-		spriteOffset = 60;
+		spritesheetPosition = 60;
 	}
-	sprite.setTextureRect(sf::IntRect(0, spriteOffset, 20, 20));
+	sprite.setTextureRect(sf::IntRect(0, spritesheetPosition, 20, 20));
 	sprite.setOrigin(sf::Vector2f(2, 4));
 	sprite.setColor(color);
 

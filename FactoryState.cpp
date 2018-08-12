@@ -46,6 +46,8 @@ void FactoryState::init() {
 	}
 	// Shuffle it to randomize what comes out
 	std::random_shuffle(emptyBorderPositions.begin(), emptyBorderPositions.end());
+
+	frame.setTexture(loadTexture("Resource/Image/Frame.png"));
 }
 
 void FactoryState::gotEvent(sf::Event event) {
@@ -100,6 +102,10 @@ void FactoryState::update(sf::Time elapsed) {
 		goodCells.resize(goodCells.size() - removed);
 	}
 
+	for (Cell *cell : borderCells) {
+		cell->update(elapsed);
+	}
+
 	sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		if (selection == conveyor) {
@@ -142,8 +148,11 @@ void FactoryState::render(sf::RenderWindow &window) {
 		cell->drawBox(window);
 	}
 	for (Cell *cell : borderCells) {
-		window.draw(*cell);
 		cell->drawBox(window);
+	}
+	window.draw(frame);
+	for (Cell *cell : borderCells) {
+		window.draw(*cell);
 	}
 }
 
@@ -239,6 +248,11 @@ Cell *FactoryState::getCellAtGridPosition(int x, int y) {
 
 Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
 	return getCellAtGridPosition(gridPosition.x, gridPosition.y);
+}
+
+void FactoryState::lose() {
+	// Todo: make actual game over screen
+	game->changeState(new FactoryState());
 }
 
 void FactoryState::preTick() {

@@ -10,6 +10,7 @@ public:
 
 	// Inherited via Cell
 	virtual void processTick() override;
+	virtual bool giveTick() override;
 	virtual void update(sf::Time elapsed) override;
 	virtual void updateGraphics() override;
 
@@ -20,8 +21,10 @@ private:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 	sf::Sprite sprite;
+	int spritesheetPosition;
 
 	int period;
 	int countdown;
+	int stored;
 };
 
