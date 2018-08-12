@@ -171,24 +171,34 @@ void FactoryState::preTick() {
 }
 
 void FactoryState::tick() {
+	// Debug entrypoint
 	if (cells[0] && cells[0]->canReceiveFrom(left)) {
 		cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
 	}
 
-	// Todo: place "good" cells into their own vector. randomize order of vector to balance priority of give / take operations
 	for (Cell *cell : cells) {
 		if (cell) {
 			cell->processTick();
 		}
 	}
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->takeTick();
+	for (int i = 0; i < cells.size(); i++) {
+		if (cells[i]) {
+			cells[i]->takeTick();
 		}
 	}
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->giveTick();
+	for (int i = cells.size() - 1; i >= 0; i--) {
+		if (cells[i]) {
+			cells[i]->takeTick();
+		}
+	}
+	for (int i = 0; i < cells.size(); i++) {
+		if (cells[i]) {
+			cells[i]->giveTick();
+		}
+	}
+	for (int i = cells.size() - 1; i >= 0; i--) {
+		if (cells[i]) {
+			cells[i]->giveTick();
 		}
 	}
 }
