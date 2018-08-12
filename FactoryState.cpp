@@ -64,6 +64,10 @@ void FactoryState::init() {
 	pauseText.setTexture(loadTexture("Resource/Image/Font.png"));
 	pauseText.setText("Press space to pause");
 	pauseText.setPosition(4, 123);
+
+	timerBar.setPosition(72, 4);
+	timerBar.setSize(sf::Vector2f(112, 8));
+	timerBar.setFillColor(sf::Color::Black);
 }
 
 void FactoryState::gotEvent(sf::Event event) {
@@ -117,13 +121,17 @@ void FactoryState::update(sf::Time elapsed) {
 				difficultyCountdown--;
 				if (difficultyCountdown <= 0) {
 					difficultyTick();
-					difficultyCountdown = 5 + difficulty * 5;
+					difficultyCountdown = 5 + difficulty * 2;
+					timerBar.setSize(sf::Vector2f(112, 8));
 				}
 			}
 			else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
 				preTick();
 				preTickDone = true;
 			}
+			float timerSize = timerBar.getSize().x;
+			timerSize += (112 * (difficultyCountdown - 1) / (5 + difficulty * 2) - timerSize) * 10 * elapsed.asSeconds();
+			timerBar.setSize(sf::Vector2f(timerSize, 8));
 
 			int removed = 0;
 			for (int i = 0; i < cells.size(); i++) {
@@ -219,6 +227,7 @@ void FactoryState::render(sf::RenderWindow &window) {
 	window.draw(selector);
 	window.draw(scoreDisplay);
 	window.draw(pauseText);
+	window.draw(timerBar);
 }
 
 void FactoryState::addCell(Cell *cell, int x, int y) {

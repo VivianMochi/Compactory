@@ -62,6 +62,7 @@ private:
 	BitmapText scoreDisplay;
 	BitmapText partText;
 	sf::Sprite selector;
+	sf::RectangleShape timerBar;
 
 	enum cellType {
 		conveyor = 0,
