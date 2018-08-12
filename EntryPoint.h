@@ -20,7 +20,6 @@ private:
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
 	sf::Sprite sprite;
-	sf::Color color;
 
 	int period;
 	int countdown;

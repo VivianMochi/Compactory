@@ -46,5 +46,8 @@ public:
 
 	Box *box = nullptr;
 	Box *nextBox = nullptr;
+
+	bool filtered = false;
+	sf::Color filter;
 };
 

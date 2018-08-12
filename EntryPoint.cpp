@@ -2,8 +2,9 @@
 
 #include "FactoryState.h"
 
-EntryPoint::EntryPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false), color(color), period(4), countdown(period) {
+EntryPoint::EntryPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false), period(4), countdown(period) {
 	giveTo.enable(direction);
+	filter = color;
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Arrows.png"));
 	int spriteOffset = 0;
@@ -37,7 +38,7 @@ void EntryPoint::processTick() {
 	if (countdown <= 0) {
 		countdown = period;
 		if (!box && !nextBox) {
-			box = new Box(factory, color);
+			box = new Box(factory, filter);
 			nextBox = box;
 			box->setPosition(factory->gridToScreenPosition(gridPosition));
 		}

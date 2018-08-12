@@ -29,7 +29,7 @@ bool Cell::takeTick() {
 	if (!nextBox) {
 		for (Direction direction : takeFrom.listEnabled()) {
 			Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction));
-			if (otherCell && otherCell->box && otherCell->nextBox == otherCell->box) {
+			if (otherCell && otherCell->box && otherCell->nextBox == otherCell->box && (!filtered || otherCell->box->getColor() == filter)) {
 				nextBox = otherCell->box;
 				otherCell->nextBox = nullptr;
 				return true;
@@ -46,7 +46,7 @@ bool Cell::giveTick() {
 	if (box && nextBox == box) {
 		for (Direction direction : giveTo.listEnabled()) {
 			Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction));
-			if (otherCell && otherCell->canReceiveFrom(flipDirection(direction))) {
+			if (otherCell && otherCell->canReceiveFrom(flipDirection(direction)) && (!otherCell->filtered || box->getColor() == otherCell->filter)) {
 				otherCell->nextBox = box;
 				nextBox = nullptr;
 				return true;

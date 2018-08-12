@@ -29,7 +29,7 @@ Bouncer::~Bouncer() {
 bool Bouncer::giveTick() {
 	if (box && nextBox == box) {
 		Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction) * 2);
-		if (otherCell && otherCell->canReceiveFrom(flipDirection(direction))) {
+		if (otherCell && otherCell->canReceiveFrom(flipDirection(direction)) && (!otherCell->filtered || box->getColor() == otherCell->filter)) {
 			otherCell->nextBox = box;
 			nextBox = nullptr;
 			return true;

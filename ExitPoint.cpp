@@ -2,9 +2,12 @@
 
 #include "FactoryState.h"
 
-ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false), color(color) {
+ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false) {
 	takeFrom.enable(direction);
 	canReceive.disable(all);
+	canReceive.enable(direction);
+	filtered = true;
+	filter = color;
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Arrows.png"));
 	Direction renderDirection = flipDirection(direction);
@@ -39,23 +42,6 @@ void ExitPoint::processTick() {
 		delete box;
 		box = nullptr;
 		nextBox = nullptr;
-	}
-}
-
-bool ExitPoint::takeTick() {
-	if (!nextBox) {
-		for (Direction direction : takeFrom.listEnabled()) {
-			Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction));
-			if (otherCell && otherCell->box && otherCell->nextBox == otherCell->box && otherCell->box->getColor() == color) {
-				nextBox = otherCell->box;
-				otherCell->nextBox = nullptr;
-				return true;
-			}
-		}
-		return false;
-	}
-	else {
-		return false;
 	}
 }
 
