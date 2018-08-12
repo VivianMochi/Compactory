@@ -2,6 +2,7 @@
 
 #include "Conveyor.h"
 #include "Splitter.h"
+#include "Bouncer.h"
 #include "Directions.h"
 #include "Box.h"
 #include "EntryPoint.h"
@@ -109,6 +110,11 @@ void FactoryState::update(sf::Time elapsed) {
 		else if (selection == splitter) {
 			if (lastSelectedCell != selectedCell) {
 				addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+			}
+		}
+		else if (selection == bouncer) {
+			if (lastSelectedCell != selectedCell) {
+				addCell(new Bouncer(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
 			}
 		}
 	}
