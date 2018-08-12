@@ -45,6 +45,7 @@ private:
 	sf::Vector2f gridPositionOnScreen;
 	std::vector<Cell*> cells;
 	std::vector<Cell*> goodCells;
+	std::vector<Cell*> borderCells;
 
 	enum cellType {
 		conveyor,

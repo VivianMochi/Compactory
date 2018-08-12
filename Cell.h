@@ -8,7 +8,7 @@ class FactoryState;
 
 class Cell : public sf::Drawable {
 public:
-	Cell(FactoryState *state = nullptr);
+	Cell(FactoryState *state = nullptr, bool useConnections = true);
 	virtual ~Cell();
 
 	virtual void preTick();
@@ -30,7 +30,7 @@ public:
 	void destroy();
 	bool shouldDie() const;
 
-protected:
+//private:
 	// Inherited via Drawable
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
@@ -38,12 +38,11 @@ protected:
 	sf::Vector2i gridPosition;
 	bool dying = false;
 
-	Directions connections;
-
-public:
 	Directions takeFrom;
 	Directions canReceive;
 	Directions giveTo;
+	Directions connections;
+	bool useConnections;
 
 	Box *box = nullptr;
 	Box *nextBox = nullptr;

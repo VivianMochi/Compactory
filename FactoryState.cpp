@@ -4,6 +4,8 @@
 #include "Splitter.h"
 #include "Directions.h"
 #include "Box.h"
+#include "EntryPoint.h"
+#include "ExitPoint.h"
 
 #include <iostream>
 
@@ -15,12 +17,20 @@ FactoryState::~FactoryState() {
 	for (Cell *cell : goodCells) {
 		delete cell;
 	}
+	for (Cell *cell : borderCells) {
+		delete cell;
+	}
 }
 
 void FactoryState::init() {
 	cells.resize(gridWidth * gridHeight, nullptr);
 	gridPositionOnScreen.x = 240 / 2 - gridWidth * cellWidth / 2;
 	gridPositionOnScreen.y = 135 / 2 - gridHeight * cellHeight / 2;
+
+	borderCells.push_back(new EntryPoint(this, -1, 0, right));
+	updateSurroundingGraphics(-1, 0);
+	borderCells.push_back(new ExitPoint(this, 6, 2, left));
+	updateSurroundingGraphics(6, 2);
 }
 
 void FactoryState::gotEvent(sf::Event event) {
@@ -102,6 +112,10 @@ void FactoryState::render(sf::RenderWindow &window) {
 	for (Cell *cell : goodCells) {
 		cell->drawBox(window);
 	}
+	for (Cell *cell : borderCells) {
+		window.draw(*cell);
+		cell->drawBox(window);
+	}
 }
 
 void FactoryState::addCell(Cell *cell, int x, int y) {
@@ -175,6 +189,11 @@ Cell *FactoryState::getCellAtGridPosition(int x, int y) {
 		return cells[y * gridWidth + x];
 	}
 	else {
+		for (Cell *cell : borderCells) {
+			if (cell->gridPosition == sf::Vector2i(x, y)) {
+				return cell;
+			}
+		}
 		return nullptr;
 	}
 }
@@ -184,22 +203,29 @@ Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
 }
 
 void FactoryState::preTick() {
+	// Move all boxes towards their next cell
 	for (Cell *cell : goodCells) {
+		cell->preTick();
+	}
+	for (Cell *cell : borderCells) {
 		cell->preTick();
 	}
 }
 
 void FactoryState::tick() {
-	// Debug entrypoint
-	if (cells[0] && cells[0]->canReceiveFrom(left)) {
-		cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
-	}
-
-	// Shuffle good cells to balance priority of box transfers
+	// Shuffle cells to balance priority of box transfers
 	std::random_shuffle(goodCells.begin(), goodCells.end());
+	std::random_shuffle(borderCells.begin(), borderCells.end());
+
+	// Allow all cells to process their contents
 	for (Cell *cell : goodCells) {
 		cell->processTick();
 	}
+	for (Cell *cell : borderCells) {
+		cell->processTick();
+	}
+
+	// Allow any cells that take boxes to do so
 	bool changed = true;
 	while (changed) {
 		changed = false;
@@ -208,11 +234,23 @@ void FactoryState::tick() {
 				changed = true;
 			}
 		}
+		for (Cell *cell : borderCells) {
+			if (cell->takeTick()) {
+				changed = true;
+			}
+		}
 	}
+
+	// Allow cells that give boxes to do so
 	changed = true;
 	while (changed) {
 		changed = false;
 		for (Cell *cell : goodCells) {
+			if (cell->giveTick()) {
+				changed = true;
+			}
+		}
+		for (Cell *cell : borderCells) {
 			if (cell->giveTick()) {
 				changed = true;
 			}
