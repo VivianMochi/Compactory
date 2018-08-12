@@ -27,10 +27,24 @@ void FactoryState::init() {
 	gridPositionOnScreen.x = 240 / 2 - gridWidth * cellWidth / 2;
 	gridPositionOnScreen.y = 135 / 2 - gridHeight * cellHeight / 2;
 
-	borderCells.push_back(new EntryPoint(this, -1, 0, right));
-	updateSurroundingGraphics(-1, 0);
-	borderCells.push_back(new ExitPoint(this, 6, 2, left));
-	updateSurroundingGraphics(6, 2);
+	availableColors.emplace_back(216, 176, 127); // Brown-yellow
+	availableColors.emplace_back(101, 176, 127); // Green
+	availableColors.emplace_back(84, 167, 183); // Light blue
+	availableColors.emplace_back(151, 147, 151); // Gray
+	availableColors.emplace_back(150, 76, 77); // Red
+	availableColors.emplace_back(36, 68, 104); // Dark Blue
+
+	// Add all border positons to a vector
+	for (int x = 0; x < gridWidth; x++) {
+		emptyBorderPositions.emplace_back(sf::Vector2i(x, -1), down);
+		emptyBorderPositions.emplace_back(sf::Vector2i(x, gridHeight), up);
+	}
+	for (int y = 0; y < gridHeight; y++) {
+		emptyBorderPositions.emplace_back(sf::Vector2i(-1, y), right);
+		emptyBorderPositions.emplace_back(sf::Vector2i(gridWidth, y), left);
+	}
+	// Shuffle it to randomize what comes out
+	std::random_shuffle(emptyBorderPositions.begin(), emptyBorderPositions.end());
 }
 
 void FactoryState::gotEvent(sf::Event event) {
@@ -44,6 +58,9 @@ void FactoryState::gotEvent(sf::Event event) {
 		else if (event.key.code == sf::Keyboard::E) {
 			selection = bouncer;
 		}
+		else if (event.key.code == sf::Keyboard::Z) {
+			game->changeState(new FactoryState());
+		}
 	}
 }
 
@@ -53,6 +70,12 @@ void FactoryState::update(sf::Time elapsed) {
 		tick();
 		tickCounter = tickPeriod;
 		preTickDone = false;
+
+		difficultyCountdown--;
+		if (difficultyCountdown <= 0) {
+			difficultyTick();
+			difficultyCountdown = 5 + difficulty * 5;
+		}
 	}
 	else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
 		preTick();
@@ -258,6 +281,41 @@ void FactoryState::tick() {
 	}
 }
 
+void FactoryState::difficultyTick() {
+	sf::Color entryColor;
+	sf::Color exitColor;
+	if (difficulty == 0) {
+		entryColor = availableColors[0];
+		exitColor = entryColor;
+	}
+	else {
+		entryColor = availableColors[std::rand() % availableColors.size()];
+		if (std::rand() % 3 == 0) {
+			exitColor = availableColors[std::rand() % availableColors.size()];
+			// Todo: add new rule to change colors from entry to exit
+		}
+		else {
+			exitColor = entryColor;
+		}
+	}
+	
+	// Take the last position from the (shuffled) empty border position vector and place the entry there
+	sf::Vector2i entryPosition = emptyBorderPositions.back().first;
+	Direction entryDirection = emptyBorderPositions.back().second;
+	emptyBorderPositions.pop_back();
+	borderCells.push_back(new EntryPoint(this, entryPosition, entryDirection, entryColor));
+	updateSurroundingGraphics(entryPosition);
+
+	// Do the same for the exit
+	sf::Vector2i exitPosition = emptyBorderPositions.back().first;
+	Direction exitDirection = emptyBorderPositions.back().second;
+	emptyBorderPositions.pop_back();
+	borderCells.push_back(new ExitPoint(this, exitPosition, exitDirection, exitColor));
+	updateSurroundingGraphics(exitPosition);
+
+	difficulty++;
+}
+
 bool FactoryState::validGridPosition(int x, int y) {
 	return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
 }
@@ -283,4 +341,8 @@ void FactoryState::updateSurroundingGraphics(int x, int y) {
 	if (cellLeft) {
 		cellLeft->updateGraphics();
 	}
+}
+
+void FactoryState::updateSurroundingGraphics(sf::Vector2i gridPosition) {
+	updateSurroundingGraphics(gridPosition.x, gridPosition.y);
 }

@@ -3,6 +3,9 @@
 #include "FactoryState.h"
 
 Splitter::Splitter(FactoryState *state, Direction direction) : Cell(state) {
+	if (direction == none || direction == all) {
+		direction = up;
+	}
 	giveTo.enable(direction | flipDirection(direction));
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Splitter.png"));

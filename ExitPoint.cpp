@@ -26,6 +26,10 @@ ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf:
 	setGridPosition(x, y);
 }
 
+ExitPoint::ExitPoint(FactoryState *state, sf::Vector2i position, Direction direction, sf::Color color) : ExitPoint(state, position.x, position.y, direction, color) {
+
+}
+
 ExitPoint::~ExitPoint() {
 
 }

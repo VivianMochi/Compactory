@@ -5,6 +5,7 @@
 class ExitPoint : public Cell {
 public:
 	ExitPoint(FactoryState *state = nullptr, int x = 0, int y = 0, Direction direction = none, sf::Color color = sf::Color(216, 176, 127));
+	ExitPoint(FactoryState *state = nullptr, sf::Vector2i position = sf::Vector2i(), Direction direction = none, sf::Color color = sf::Color());
 	~ExitPoint();
 
 	// Inherited via Cell

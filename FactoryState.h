@@ -31,11 +31,16 @@ public:
 private:
 	void preTick();
 	void tick();
+	// A difficulty tick adds new entry and exit points to the factory, and potentially a new rule
+	void difficultyTick();
+	int difficulty = 0;
+	int difficultyCountdown = 2;
 
 	bool validGridPosition(int x, int y);
 	bool validGridPosition(sf::Vector2i gridPosition);
 	
 	void updateSurroundingGraphics(int x, int y);
+	void updateSurroundingGraphics(sf::Vector2i gridPosition);
 
 	int gridWidth;
 	int gridHeight;
@@ -46,6 +51,7 @@ private:
 	std::vector<Cell*> cells;
 	std::vector<Cell*> goodCells;
 	std::vector<Cell*> borderCells;
+	std::vector<std::pair<sf::Vector2i, Direction>> emptyBorderPositions;
 
 	enum cellType {
 		conveyor,
@@ -58,5 +64,9 @@ private:
 	float tickCounter = 0;
 	float tickPeriod;
 	bool preTickDone = false;
+
+	std::vector<sf::Color> availableColors;
+	std::vector<sf::Color> entryColors;
+	std::vector<sf::Color> exitColors;
 };
 

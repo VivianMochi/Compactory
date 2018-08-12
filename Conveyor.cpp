@@ -2,7 +2,10 @@
 
 #include "FactoryState.h"
 
-Conveyor::Conveyor(FactoryState *state, int direction) : Cell(state) {
+Conveyor::Conveyor(FactoryState *state, Direction direction) : Cell(state) {
+	if (direction == none || direction == all) {
+		direction = up;
+	}
 	giveTo.enable(direction);
 
 	sprite.setTexture(factory->loadTexture("Resource/Image/Conveyor.png"));

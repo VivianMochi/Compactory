@@ -4,7 +4,7 @@
 
 class Conveyor : public Cell {
 public:
-	Conveyor(FactoryState *state = nullptr, int direction = 1);
+	Conveyor(FactoryState *state = nullptr, Direction direction = up);
 	~Conveyor();
 
 	// Inherited via Cell
