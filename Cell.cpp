@@ -26,10 +26,20 @@ void Cell::processTick() {
 }
 
 bool Cell::takeTick() {
-	if (!box) {
-		// Todo: take from random takeFrom direction
+	if (!nextBox) {
+		for (Direction direction : takeFrom.listEnabled()) {
+			Cell *otherCell = factory->getCellAtGridPosition(gridPosition + directionToVector(direction));
+			if (otherCell && otherCell->box && otherCell->nextBox == otherCell->box) {
+				nextBox = otherCell->box;
+				otherCell->nextBox = nullptr;
+				return true;
+			}
+		}
+		return false;
 	}
-	return false;
+	else {
+		return false;
+	}
 }
 
 bool Cell::giveTick() {

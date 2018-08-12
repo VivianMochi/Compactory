@@ -10,6 +10,7 @@ public:
 
 	// Inherited via Cell
 	virtual void processTick() override;
+	virtual bool takeTick() override;
 	virtual void update(sf::Time elapsed) override;
 	virtual void updateGraphics() override;
 

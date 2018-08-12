@@ -24,6 +24,10 @@ void Box::setPosition(sf::Vector2f position) {
 	endPosition = position;
 }
 
+sf::Color Box::getColor() const {
+	return color;
+}
+
 void Box::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 	target.draw(sprite, states);
 }

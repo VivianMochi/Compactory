@@ -14,10 +14,12 @@ public:
 	void slideTo(sf::Vector2f position);
 	void setPosition(sf::Vector2f position);
 
+	sf::Color getColor() const;
+
+private:
 	// Inherited via Drawable
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-private:
 	FactoryState *factory;
 	sf::Color color;
 
