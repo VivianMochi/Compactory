@@ -7,6 +7,7 @@
 #include "Box.h"
 #include "EntryPoint.h"
 #include "ExitPoint.h"
+#include <sstream>
 
 #include <iostream>
 
@@ -25,7 +26,7 @@ FactoryState::~FactoryState() {
 
 void FactoryState::init() {
 	cells.resize(gridWidth * gridHeight, nullptr);
-	gridPositionOnScreen.x = 240 / 2 - gridWidth * cellWidth / 2;
+	gridPositionOnScreen.x = (240 - 60) / 2 - gridWidth * cellWidth / 2 + 60;
 	gridPositionOnScreen.y = 135 / 2 - gridHeight * cellHeight / 2;
 
 	availableColors.emplace_back(216, 176, 127); // Brown-yellow
@@ -48,18 +49,32 @@ void FactoryState::init() {
 	std::random_shuffle(emptyBorderPositions.begin(), emptyBorderPositions.end());
 
 	frame.setTexture(loadTexture("Resource/Image/Frame.png"));
+
+	scoreDisplay.setTexture(loadTexture("Resource/Image/Font.png"));
+	scoreDisplay.setText("0");
+	scoreDisplay.setPosition(214, 4);
+
+	partText.setTexture(loadTexture("Resource/Image/Font.png"));
+	partText.setText("Parts:\nConveyor\n-Q\nSplitter\n-W\nBouncer\n-E");
+	partText.setPosition(4, 4);
+
+	selector.setTexture(loadTexture("Resource/Image/Selector.png"));
+	selector.setPosition(20, 26 + selection * 24);
 }
 
 void FactoryState::gotEvent(sf::Event event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Q) {
 			selection = conveyor;
+			selector.setPosition(20, 26 + selection * 24);
 		}
 		else if (event.key.code == sf::Keyboard::W) {
 			selection = splitter;
+			selector.setPosition(20, 26 + selection * 24);
 		}
 		else if (event.key.code == sf::Keyboard::E) {
 			selection = bouncer;
+			selector.setPosition(20, 26 + selection * 24);
 		}
 		else if (event.key.code == sf::Keyboard::Z) {
 			game->changeState(new FactoryState());
@@ -154,6 +169,10 @@ void FactoryState::render(sf::RenderWindow &window) {
 	for (Cell *cell : borderCells) {
 		window.draw(*cell);
 	}
+
+	window.draw(partText);
+	window.draw(selector);
+	window.draw(scoreDisplay);
 }
 
 void FactoryState::addCell(Cell *cell, int x, int y) {
@@ -250,6 +269,13 @@ Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
 	return getCellAtGridPosition(gridPosition.x, gridPosition.y);
 }
 
+void FactoryState::score() {
+	points++;
+	std::stringstream ss;
+	ss << points;
+	scoreDisplay.setText(ss.str());
+}
+
 void FactoryState::lose() {
 	// Todo: make actual game over screen
 	game->changeState(new FactoryState());
@@ -320,13 +346,15 @@ void FactoryState::difficultyTick() {
 	}
 	else {
 		entryColor = availableColors[std::rand() % availableColors.size()];
-		if (std::rand() % 3 == 0) {
+		exitColor = entryColor;
+
+		/*if (std::rand() % 3 == 0) {
 			exitColor = availableColors[std::rand() % availableColors.size()];
 			// Todo: add new rule to change colors from entry to exit
 		}
 		else {
 			exitColor = entryColor;
-		}
+		}*/
 	}
 	
 	// Take the last position from the (shuffled) empty border position vector and place the entry there

@@ -42,6 +42,7 @@ void ExitPoint::processTick() {
 		delete box;
 		box = nullptr;
 		nextBox = nullptr;
+		factory->score();
 	}
 }
 

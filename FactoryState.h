@@ -2,6 +2,7 @@
 
 #include "State.h"
 #include "Cell.h"
+#include "BitmapText.h"
 #include <SFML/Graphics.hpp>
 
 class FactoryState : public State {
@@ -28,6 +29,7 @@ public:
 	Cell *getCellAtGridPosition(int x, int y);
 	Cell *getCellAtGridPosition(sf::Vector2i gridPosition);
 
+	void score();
 	void lose();
 
 private:
@@ -55,11 +57,15 @@ private:
 	std::vector<Cell*> borderCells;
 	std::vector<std::pair<sf::Vector2i, Direction>> emptyBorderPositions;
 	sf::Sprite frame;
+	int points = 0;
+	BitmapText scoreDisplay;
+	BitmapText partText;
+	sf::Sprite selector;
 
 	enum cellType {
-		conveyor,
-		splitter,
-		bouncer
+		conveyor = 0,
+		splitter = 1,
+		bouncer = 2
 	};
 	cellType selection = conveyor;
 	sf::Vector2i lastSelectedCell;
