@@ -39,8 +39,8 @@ private:
 
 	int gridWidth;
 	int gridHeight;
-	int cellWidth;
-	int cellHeight;
+	int cellWidth = 16;
+	int cellHeight = 12;
 
 	sf::Vector2f gridPositionOnScreen;
 	std::vector<Cell*> cells;
@@ -48,7 +48,8 @@ private:
 
 	enum cellType {
 		conveyor,
-		//bouncer
+		splitter,
+		bouncer
 	};
 	cellType selection = conveyor;
 	sf::Vector2i lastSelectedCell;

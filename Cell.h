@@ -31,9 +31,14 @@ public:
 	bool shouldDie() const;
 
 protected:
+	// Inherited via Drawable
+	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+
 	FactoryState *factory;
 	sf::Vector2i gridPosition;
 	bool dying = false;
+
+	Directions connections;
 
 public:
 	Directions takeFrom;

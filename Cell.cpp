@@ -66,7 +66,24 @@ void Cell::setGridPosition(int x, int y) {
 }
 
 void Cell::updateGraphics() {
-
+	// Find connections
+	connections.disable(all);
+	Cell *cellUp = factory->getCellAtGridPosition(gridPosition + directionToVector(up));
+	Cell *cellRight = factory->getCellAtGridPosition(gridPosition + directionToVector(right));
+	Cell *cellDown = factory->getCellAtGridPosition(gridPosition + directionToVector(down));
+	Cell *cellLeft = factory->getCellAtGridPosition(gridPosition + directionToVector(left));
+	if (cellUp && cellUp->giveTo.isEnabled(down)) {
+		connections.enable(up);
+	}
+	if (cellRight && cellRight->giveTo.isEnabled(left)) {
+		connections.enable(right);
+	}
+	if (cellDown && cellDown->giveTo.isEnabled(up)) {
+		connections.enable(down);
+	}
+	if (cellLeft && cellLeft->giveTo.isEnabled(right)) {
+		connections.enable(left);
+	}
 }
 
 bool Cell::canReceiveFrom(int directions) const {
@@ -85,4 +102,26 @@ void Cell::destroy() {
 
 bool Cell::shouldDie() const {
 	return dying && !box && !nextBox;
+}
+
+void Cell::draw(sf::RenderTarget &target, sf::RenderStates states) const {
+	sf::Sprite connectingSprite;
+	connectingSprite.setTexture(factory->loadTexture("Resource/Image/Connection.png"));
+	connectingSprite.setPosition(factory->gridToScreenPosition(gridPosition));
+	if (connections.isEnabled(up)) {
+		connectingSprite.setTextureRect(sf::IntRect(0, 0, 16, 12));
+		target.draw(connectingSprite);
+	}
+	if (connections.isEnabled(right)) {
+		connectingSprite.setTextureRect(sf::IntRect(0, 12, 16, 12));
+		target.draw(connectingSprite);
+	}
+	if (connections.isEnabled(down)) {
+		connectingSprite.setTextureRect(sf::IntRect(0, 24, 16, 12));
+		target.draw(connectingSprite);
+	}
+	if (connections.isEnabled(left)) {
+		connectingSprite.setTextureRect(sf::IntRect(0, 36, 16, 12));
+		target.draw(connectingSprite);
+	}
 }

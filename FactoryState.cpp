@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellHeight(12), tickPeriod(.5) {
+FactoryState::FactoryState() : gridWidth(6), gridHeight(6), tickPeriod(.5) {
 	
 }
 
@@ -27,9 +27,12 @@ void FactoryState::gotEvent(sf::Event event) {
 		if (event.key.code == sf::Keyboard::Q) {
 			selection = conveyor;
 		}
-		/*else if (event.key.code == sf::Keyboard::W) {
+		else if (event.key.code == sf::Keyboard::W) {
+			selection = splitter;
+		}
+		else if (event.key.code == sf::Keyboard::E) {
 			selection = bouncer;
-		}*/
+		}
 	}
 }
 
