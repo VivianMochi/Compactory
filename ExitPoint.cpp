@@ -2,7 +2,7 @@
 
 #include "FactoryState.h"
 
-ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false) {
+ExitPoint::ExitPoint(FactoryState *state, int x, int y, Direction direction, sf::Color color) : Cell(state, false), consumeTime(3), color(color) {
 	takeFrom.enable(direction);
 	canReceive.disable(all);
 	canReceive.enable(direction);
@@ -38,16 +38,33 @@ ExitPoint::~ExitPoint() {
 
 void ExitPoint::processTick() {
 	Cell::processTick();
+	if (stored > 0 && consuming > 0) {
+		consuming--;
+	}
+	else if (stored > 0) {
+		consuming = consumeTime;
+		stored--;
+	}
+
+	if (stored >= 3) {
+		// This is a fairly hacky solution, but temporarily change the color filter to stop accepting boxes
+		filter = sf::Color();
+	}
+	else {
+		filter = color;
+	}
+
 	if (box && nextBox == box) {
 		delete box;
 		box = nullptr;
 		nextBox = nullptr;
+		stored++;
 		factory->score();
 	}
 }
 
 void ExitPoint::update(sf::Time elapsed) {
-
+	sprite.setTextureRect(sf::IntRect(stored * 20, spritesheetPosition, 20, 20));
 }
 
 void ExitPoint::updateGraphics() {

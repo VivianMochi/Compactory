@@ -60,11 +60,25 @@ void FactoryState::init() {
 
 	selector.setTexture(loadTexture("Resource/Image/Selector.png"));
 	selector.setPosition(20, 26 + selection * 24);
+
+	pauseText.setTexture(loadTexture("Resource/Image/Font.png"));
+	pauseText.setText("Press space to pause");
+	pauseText.setPosition(4, 123);
 }
 
 void FactoryState::gotEvent(sf::Event event) {
 	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::Q) {
+		if (event.key.code == sf::Keyboard::Space) {
+			paused = !paused;
+			if (paused) {
+				pauseText.setText("Game is paused - Space to unpause");
+			}
+			else
+			{
+				pauseText.setText("Press space to pause");
+			}
+		}
+		else if (event.key.code == sf::Keyboard::Q) {
 			selection = conveyor;
 			selector.setPosition(20, 26 + selection * 24);
 		}
@@ -83,42 +97,62 @@ void FactoryState::gotEvent(sf::Event event) {
 }
 
 void FactoryState::update(sf::Time elapsed) {
-	tickCounter -= elapsed.asSeconds();
-	if (tickCounter <= 0) {
-		tick();
-		tickCounter = tickPeriod;
-		preTickDone = false;
+	if (!paused) {
+		tickCounter -= elapsed.asSeconds();
+		if (tickCounter <= 0) {
+			tick();
+			tickCounter = tickPeriod;
+			preTickDone = false;
 
-		difficultyCountdown--;
-		if (difficultyCountdown <= 0) {
-			difficultyTick();
-			difficultyCountdown = 5 + difficulty * 5;
-		}
-	}
-	else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
-		preTick();
-		preTickDone = true;
-	}
-
-	int removed = 0;
-	for (int i = 0; i < cells.size(); i++) {
-		if (cells[i]) {
-			cells[i]->update(elapsed);
-			if (cells[i]->shouldDie()) {
-				std::remove(goodCells.begin(), goodCells.end(), cells[i]);
-				removed++;
-				delete cells[i];
-				cells[i] = nullptr;
-				updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+			difficultyCountdown--;
+			if (difficultyCountdown <= 0) {
+				difficultyTick();
+				difficultyCountdown = 5 + difficulty * 5;
 			}
 		}
-	}
-	if (removed) {
-		goodCells.resize(goodCells.size() - removed);
-	}
+		else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
+			preTick();
+			preTickDone = true;
+		}
 
-	for (Cell *cell : borderCells) {
-		cell->update(elapsed);
+		int removed = 0;
+		for (int i = 0; i < cells.size(); i++) {
+			if (cells[i]) {
+				cells[i]->update(elapsed);
+				if (cells[i]->shouldDie()) {
+					std::remove(goodCells.begin(), goodCells.end(), cells[i]);
+					removed++;
+					delete cells[i];
+					cells[i] = nullptr;
+					updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+				}
+			}
+		}
+		if (removed) {
+			goodCells.resize(goodCells.size() - removed);
+		}
+
+		for (Cell *cell : borderCells) {
+			cell->update(elapsed);
+		}
+	}
+	else {
+		// While paused, trying to delete cells is ok
+		int removed = 0;
+		for (int i = 0; i < cells.size(); i++) {
+			if (cells[i]) {
+				if (cells[i]->shouldDie()) {
+					std::remove(goodCells.begin(), goodCells.end(), cells[i]);
+					removed++;
+					delete cells[i];
+					cells[i] = nullptr;
+					updateSurroundingGraphics(i % gridWidth, i / gridWidth);
+				}
+			}
+		}
+		if (removed) {
+			goodCells.resize(goodCells.size() - removed);
+		}
 	}
 
 	sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
@@ -173,6 +207,7 @@ void FactoryState::render(sf::RenderWindow &window) {
 	window.draw(partText);
 	window.draw(selector);
 	window.draw(scoreDisplay);
+	window.draw(pauseText);
 }
 
 void FactoryState::addCell(Cell *cell, int x, int y) {
@@ -281,6 +316,11 @@ void FactoryState::lose() {
 	game->changeState(new FactoryState());
 }
 
+void FactoryState::win() {
+	// Todo: make actual win screen
+	game->changeState(new FactoryState());
+}
+
 void FactoryState::preTick() {
 	// Move all boxes towards their next cell
 	for (Cell *cell : goodCells) {
@@ -343,6 +383,10 @@ void FactoryState::difficultyTick() {
 	if (difficulty == 0) {
 		entryColor = availableColors[0];
 		exitColor = entryColor;
+	}
+	else if (difficulty == gridWidth + gridHeight) {
+		win();
+		return;
 	}
 	else {
 		entryColor = availableColors[std::rand() % availableColors.size()];

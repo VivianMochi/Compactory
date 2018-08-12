@@ -19,5 +19,10 @@ private:
 
 	sf::Sprite sprite;
 	int spritesheetPosition;
+
+	int consumeTime;
+	int consuming = 0;
+	int stored = 0;
+	sf::Color color;
 };
 

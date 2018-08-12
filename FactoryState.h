@@ -31,6 +31,7 @@ public:
 
 	void score();
 	void lose();
+	void win();
 
 private:
 	void preTick();
@@ -73,6 +74,9 @@ private:
 	float tickCounter = 0;
 	float tickPeriod;
 	bool preTickDone = false;
+
+	bool paused = false;
+	BitmapText pauseText;
 
 	std::vector<sf::Color> availableColors;
 	std::vector<sf::Color> entryColors;
