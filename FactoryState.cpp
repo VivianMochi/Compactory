@@ -11,10 +11,8 @@ FactoryState::FactoryState() : gridWidth(6), gridHeight(6), cellWidth(16), cellH
 }
 
 FactoryState::~FactoryState() {
-	for (Cell *cell : cells) {
-		if (cell) {
-			delete cell;
-		}
+	for (Cell *cell : goodCells) {
+		delete cell;
 	}
 }
 
@@ -25,12 +23,13 @@ void FactoryState::init() {
 }
 
 void FactoryState::gotEvent(sf::Event event) {
-	if (event.type == sf::Event::MouseButtonPressed) {
-		if (event.mouseButton.button == sf::Mouse::Left) {
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-				// Place cell
-			}
+	if (event.type == sf::Event::KeyPressed) {
+		if (event.key.code == sf::Keyboard::Q) {
+			selection = conveyor;
 		}
+		/*else if (event.key.code == sf::Keyboard::W) {
+			selection = bouncer;
+		}*/
 	}
 }
 
@@ -46,24 +45,35 @@ void FactoryState::update(sf::Time elapsed) {
 		preTickDone = true;
 	}
 
+	int removed = 0;
 	for (int i = 0; i < cells.size(); i++) {
 		if (cells[i]) {
 			cells[i]->update(elapsed);
 			if (cells[i]->shouldDie()) {
+				std::remove(goodCells.begin(), goodCells.end(), cells[i]);
+				removed++;
 				delete cells[i];
 				cells[i] = nullptr;
 			}
 		}
 	}
+	if (removed) {
+		goodCells.resize(goodCells.size() - removed);
+	}
 
+	sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-		sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
-		addCell(new Conveyor(this, right), screenToGridPosition(mousePosition));
+		if (selection == conveyor) {
+			if (lastSelectedCell != selectedCell) {
+				addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+			}
+		}
+		
 	}
 	else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-		sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f;
-		deleteCell(screenToGridPosition(mousePosition));
+		deleteCell(selectedCell);
 	}
+	lastSelectedCell = selectedCell;
 }
 
 void FactoryState::render(sf::RenderWindow &window) {
@@ -80,10 +90,8 @@ void FactoryState::render(sf::RenderWindow &window) {
 			cellIndex++;
 		}
 	}
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->drawBox(window);
-		}
+	for (Cell *cell : goodCells) {
+		cell->drawBox(window);
 	}
 }
 
@@ -93,6 +101,7 @@ void FactoryState::addCell(Cell * cell, int x, int y) {
 		int cellIndex = y * gridWidth + x;
 		if (!cells[cellIndex]) {
 			cells[cellIndex] = cell;
+			goodCells.push_back(cell);
 			cell->setGridPosition(x, y);
 		}
 		else {
@@ -135,13 +144,15 @@ sf::Vector2f FactoryState::gridToScreenPosition(sf::Vector2i gridPosition) {
 sf::Vector2i FactoryState::screenToGridPosition(int x, int y) {
 	sf::Vector2i gridPosition;
 	gridPosition.x = x - gridPositionOnScreen.x;
-	if (gridPosition.x > 0) {
-		gridPosition.x /= cellWidth;
+	if (gridPosition.x < 0) {
+		gridPosition.x -= cellWidth;
 	}
+	gridPosition.x /= cellWidth;
 	gridPosition.y = y - gridPositionOnScreen.y;
-	if (gridPosition.y > 0) {
-		gridPosition.y /= cellHeight;
+	if (gridPosition.y < 0) {
+		gridPosition.y -= cellHeight;
 	}
+	gridPosition.y /= cellHeight;
 	return gridPosition;
 }
 
@@ -163,10 +174,8 @@ Cell *FactoryState::getCellAtGridPosition(sf::Vector2i gridPosition) {
 }
 
 void FactoryState::preTick() {
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->preTick();
-		}
+	for (Cell *cell : goodCells) {
+		cell->preTick();
 	}
 }
 
@@ -176,29 +185,27 @@ void FactoryState::tick() {
 		cells[0]->nextBox = new Box(this, sf::Color(216, 176, 127));
 	}
 
-	for (Cell *cell : cells) {
-		if (cell) {
-			cell->processTick();
+	// Shuffle good cells to balance priority of box transfers
+	std::random_shuffle(goodCells.begin(), goodCells.end());
+	for (Cell *cell : goodCells) {
+		cell->processTick();
+	}
+	bool changed = true;
+	while (changed) {
+		changed = false;
+		for (Cell *cell : goodCells) {
+			if (cell->takeTick()) {
+				changed = true;
+			}
 		}
 	}
-	for (int i = 0; i < cells.size(); i++) {
-		if (cells[i]) {
-			cells[i]->takeTick();
-		}
-	}
-	for (int i = cells.size() - 1; i >= 0; i--) {
-		if (cells[i]) {
-			cells[i]->takeTick();
-		}
-	}
-	for (int i = 0; i < cells.size(); i++) {
-		if (cells[i]) {
-			cells[i]->giveTick();
-		}
-	}
-	for (int i = cells.size() - 1; i >= 0; i--) {
-		if (cells[i]) {
-			cells[i]->giveTick();
+	changed = true;
+	while (changed) {
+		changed = false;
+		for (Cell *cell : goodCells) {
+			if (cell->giveTick()) {
+				changed = true;
+			}
 		}
 	}
 }

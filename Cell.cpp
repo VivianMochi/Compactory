@@ -25,13 +25,14 @@ void Cell::processTick() {
 	}
 }
 
-void Cell::takeTick() {
+bool Cell::takeTick() {
 	if (!box) {
 		// Todo: take from random takeFrom direction
 	}
+	return false;
 }
 
-void Cell::giveTick() {
+bool Cell::giveTick() {
 	if (box) {
 		for (Direction direction : giveTo.listEnabled()) {
 			// Todo: randomly organize directions every time to balance load
@@ -39,9 +40,13 @@ void Cell::giveTick() {
 			if (otherCell && otherCell->canReceiveFrom(flipDirection(direction))) {
 				otherCell->nextBox = box;
 				nextBox = nullptr;
-				break;
+				return true;
 			}
 		}
+		return false;
+	}
+	else {
+		return false;
 	}
 }
 

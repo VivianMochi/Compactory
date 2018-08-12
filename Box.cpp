@@ -2,8 +2,6 @@
 
 #include "FactoryState.h"
 
-#include <iostream>
-
 Box::Box(FactoryState *state, sf::Color color) : factory(state), color(color) {
 	sprite.setTexture(factory->loadTexture("Resource/Image/Box.png"));
 	sprite.setColor(color);

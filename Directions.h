@@ -12,6 +12,7 @@ enum Direction {
 };
 
 sf::Vector2i directionToVector(Direction direction);
+Direction vectorToDirection(sf::Vector2i vector);
 Direction flipDirection(Direction input);
 
 class Directions {

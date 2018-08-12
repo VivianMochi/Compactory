@@ -42,6 +42,14 @@ private:
 
 	sf::Vector2f gridPositionOnScreen;
 	std::vector<Cell*> cells;
+	std::vector<Cell*> goodCells;
+
+	enum cellType {
+		conveyor,
+		//bouncer
+	};
+	cellType selection = conveyor;
+	sf::Vector2i lastSelectedCell;
 
 	float tickCounter = 0;
 	float tickPeriod;

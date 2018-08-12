@@ -8,7 +8,7 @@ public:
 	~EntryPoint();
 
 	// Inherited via Cell
-	virtual void giveTick() override;
+	virtual bool giveTick() override;
 	virtual void update(sf::Time elapsed) override;
 	virtual void setGridPosition(sf::Vector2i gridPosition) override;
 };

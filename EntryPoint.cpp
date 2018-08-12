@@ -8,8 +8,8 @@ EntryPoint::~EntryPoint() {
 
 }
 
-void EntryPoint::giveTick() {
-
+bool EntryPoint::giveTick() {
+	return false;
 }
 
 void EntryPoint::update(sf::Time elapsed) {

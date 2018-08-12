@@ -13,8 +13,10 @@ public:
 
 	virtual void preTick();
 	virtual void processTick();
-	virtual void takeTick();
-	virtual void giveTick();
+	// Returns true if a box is moved
+	virtual bool takeTick();
+	// Returns true if a box is moved
+	virtual bool giveTick();
 	virtual void update(sf::Time elapsed);
 
 	virtual void setGridPosition(sf::Vector2i gridPosition);

@@ -8,8 +8,8 @@ ExitPoint::~ExitPoint() {
 
 }
 
-void ExitPoint::takeTick() {
-
+bool ExitPoint::takeTick() {
+	return false;
 }
 
 void ExitPoint::update(sf::Time elapsed) {

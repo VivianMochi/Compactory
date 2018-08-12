@@ -18,6 +18,24 @@ sf::Vector2i directionToVector(Direction direction) {
 	}
 }
 
+Direction vectorToDirection(sf::Vector2i vector) {
+	if (vector == sf::Vector2i(0, -1)) {
+		return up;
+	}
+	else if (vector == sf::Vector2i(1, 0)) {
+		return right;
+	}
+	else if (vector == sf::Vector2i(0, 1)) {
+		return down;
+	}
+	else if (vector == sf::Vector2i(-1, 0)) {
+		return left;
+	}
+	else {
+		return none;
+	}
+}
+
 Direction flipDirection(Direction input) {
 	if (input == up) {
 		return down;

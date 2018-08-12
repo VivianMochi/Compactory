@@ -8,7 +8,7 @@ public:
 	~ExitPoint();
 
 	// Inherited via Cell
-	virtual void takeTick() override;
+	virtual bool takeTick() override;
 	virtual void update(sf::Time elapsed) override;
 	virtual void setGridPosition(sf::Vector2i gridPosition) override;
 };

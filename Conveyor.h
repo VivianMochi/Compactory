@@ -14,6 +14,7 @@ private:
 	// Inherited via Cell
 	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
+	Directions connections;
 	sf::Sprite sprite;
 };
 
