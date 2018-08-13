@@ -173,7 +173,7 @@ void FactoryState::update(sf::Time elapsed) {
 			}
 		}
 
-		sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / 4.f);
+		sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / float(game->scale));
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 			if (selection == conveyor) {
 				if (lastSelectedCell != selectedCell) {
