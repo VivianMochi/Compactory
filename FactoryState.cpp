@@ -73,19 +73,18 @@ void FactoryState::init() {
 void FactoryState::gotEvent(sf::Event event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Space) {
-			if (gameOver) {
+			if (state == lost) {
 				if (tickCounter <= 0) {
 					game->changeState(new FactoryState());
 				}
 			}
-			else {
-				paused = !paused;
-				if (paused) {
-					pauseText.setText("Game is paused - Space to unpause");
-				}
-				else {
-					pauseText.setText("Press space to pause");
-				}
+			else if (state == playing) {
+				state = paused;
+				pauseText.setText("Game is paused - Space to unpause");
+			}
+			else if (state == paused) {
+				state = playing;
+				pauseText.setText("Press space to pause");
 			}
 		}
 		else if (event.key.code == sf::Keyboard::Q) {
@@ -107,22 +106,30 @@ void FactoryState::gotEvent(sf::Event event) {
 }
 
 void FactoryState::update(sf::Time elapsed) {
-	if (gameOver) {
+	if (state == lost) {
 		tickCounter -= elapsed.asSeconds();
 	}
 	else {
-		if (!paused) {
+		if (state != paused) {
 			tickCounter -= elapsed.asSeconds();
 			if (tickCounter <= 0) {
 				tick();
 				tickCounter = tickPeriod;
 				preTickDone = false;
 
-				difficultyCountdown--;
-				if (difficultyCountdown <= 0) {
-					difficultyTick();
-					difficultyCountdown = 5 + difficulty * 2;
-					timerBar.setSize(sf::Vector2f(112, 8));
+				if (state == playing) {
+					difficultyCountdown--;
+					if (difficultyCountdown <= 0) {
+						difficultyTick();
+						// Check to see if we are approaching the last tick
+						if (difficulty == gridHeight + gridWidth) {
+							difficultyCountdown = gridHeight * gridWidth + 30;
+						}
+						else {
+							difficultyCountdown = 5 + difficulty * 2;
+						}
+						timerBar.setSize(sf::Vector2f(112, 8));
+					}
 				}
 			}
 			else if (!preTickDone && tickCounter < tickPeriod * 4 / 5) {
@@ -130,7 +137,12 @@ void FactoryState::update(sf::Time elapsed) {
 				preTickDone = true;
 			}
 			float timerSize = timerBar.getSize().x;
-			timerSize += (112 * (difficultyCountdown - 1) / (5 + difficulty * 2) - timerSize) * 10 * elapsed.asSeconds();
+			if (difficulty == gridHeight + gridWidth) {
+				timerSize += (112 * (difficultyCountdown - 1) / (gridHeight * gridWidth + 30) - timerSize) * 10 * elapsed.asSeconds();
+			}
+			else {
+				timerSize += (112 * (difficultyCountdown - 1) / (5 + difficulty * 2) - timerSize) * 10 * elapsed.asSeconds();
+			}
 			timerBar.setSize(sf::Vector2f(timerSize, 8));
 
 			int removed = 0;
@@ -172,29 +184,31 @@ void FactoryState::update(sf::Time elapsed) {
 				goodCells.resize(goodCells.size() - removed);
 			}
 		}
-
-		sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / float(game->scale));
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			if (selection == conveyor) {
-				if (lastSelectedCell != selectedCell) {
-					addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+		
+		if (state != won) {
+			sf::Vector2i selectedCell = screenToGridPosition(sf::Vector2f(sf::Mouse::getPosition(*game->getWindow())) / float(game->scale));
+			if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+				if (selection == conveyor) {
+					if (lastSelectedCell != selectedCell) {
+						addCell(new Conveyor(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+					}
+				}
+				else if (selection == splitter) {
+					if (lastSelectedCell != selectedCell) {
+						addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+					}
+				}
+				else if (selection == bouncer) {
+					if (lastSelectedCell != selectedCell) {
+						addCell(new Bouncer(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
+					}
 				}
 			}
-			else if (selection == splitter) {
-				if (lastSelectedCell != selectedCell) {
-					addCell(new Splitter(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
-				}
+			else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+				deleteCell(selectedCell);
 			}
-			else if (selection == bouncer) {
-				if (lastSelectedCell != selectedCell) {
-					addCell(new Bouncer(this, vectorToDirection(selectedCell - lastSelectedCell)), lastSelectedCell);
-				}
-			}
+			lastSelectedCell = selectedCell;
 		}
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-			deleteCell(selectedCell);
-		}
-		lastSelectedCell = selectedCell;
 	}
 }
 
@@ -332,14 +346,13 @@ void FactoryState::score() {
 }
 
 void FactoryState::lose() {
-	gameOver = true;
+	state = lost;
 	tickCounter = 1;
 	pauseText.setText("Game Over! Entry point backed up!");
 }
 
 void FactoryState::win() {
-	gameOver = true;
-	tickCounter = 1;
+	state = won;
 	pauseText.setText("Complete! Factory is functional!");
 }
 

@@ -76,8 +76,12 @@ private:
 	float tickPeriod;
 	bool preTickDone = false;
 
-	bool paused = false;
-	bool gameOver = false;
+	enum {
+		playing,
+		paused,
+		lost,
+		won
+	} state = playing;
 	BitmapText pauseText;
 
 	std::vector<sf::Color> availableColors;
